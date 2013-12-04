@@ -6,6 +6,6 @@ E;smoker;many visitors;researcher
 F;non-smoker;few visitors;researcher
 G;non-smoker;few visitors;researcher
 H;non-smoker;many visitors;PhD Student
-I;smoker;few visitors;PhDStudent
+I;smoker;few visitors;PhD Student
 J;smoker;few visitors;PhD Student
 K;non-smoker;few visitors;PhD Student
