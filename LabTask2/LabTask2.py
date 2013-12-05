@@ -44,7 +44,7 @@ class Constraints:
     office = Office()
 
     def checkConstraints(self,one,room):
-        if not self.FullRoom(one,room):
+        if not self.FullRoom(room):
             return False
         if not self.Smoker(one,room):
             return False
@@ -66,7 +66,7 @@ class Constraints:
                 return False
         return True
 
-    def FullRoom(self,one,room):
+    def FullRoom(self,room):
         if room.currentAmount == room.amount:
             return False
         for another in room.contains:
@@ -125,5 +125,5 @@ if assignments != None:
     for a in assignments.keys():
         print("Person:",a.name,"with status:",a.status,a.smoker,a.manyVisitors,"assigned to room:",assignments[a])
 else:
-    print("NONE")
+    print("Couldn't assign everybody")
   
