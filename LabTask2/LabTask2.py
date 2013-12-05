@@ -103,6 +103,7 @@ def ReckursiveBacktracking(assignment,csp):
         csp.office.officeRooms[personToDelete].contains.remove(person)
         csp.office.officeRooms[personToDelete].currentAmount -= 1
         del assignment[person]
+    csp.office.persons.append(person)
     return None
 
 def roomList(person,assignment,csp):
@@ -123,4 +124,6 @@ assignments = BackTrackingSearch(csp)
 if assignments != None:
     for a in assignments.keys():
         print("Person:",a.name,"with status:",a.status,a.smoker,a.manyVisitors,"assigned to room:",assignments[a])
+else:
+    print("NONE")
   
