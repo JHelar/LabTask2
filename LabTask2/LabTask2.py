@@ -15,6 +15,7 @@ class Rooms:
 
 class Office:
     persons = list()
+    unAssignedPeople = list()
     officeRooms = dict()
     
     def __init__(self):
@@ -34,8 +35,10 @@ class Office:
             dummyPerson = Person()
             dummyPerson.name,dummyPerson.smoker,dummyPerson.manyVisitors,dummyPerson.status = dataLine.split(';')
             self.persons.append(dummyPerson)
+            self.unAssignedPeople.append(dummyPerson)
         dataFile.close()
         self.persons.reverse()
+
         del dataFile
         del dataLine
     
@@ -103,7 +106,11 @@ def ReckursiveBacktracking(assignment,csp):
         csp.office.officeRooms[personToDelete].contains.remove(person)
         csp.office.officeRooms[personToDelete].currentAmount -= 1
         del assignment[person]
-    csp.office.persons.append(person)
+    csp.office.persons.insert(0,person)
+    if len(csp.office.persons) < len(csp.office.unAssignedPeople):
+        csp.office.unAssignedPeople = list()
+        for p in csp.office.persons:
+            csp.office.unAssignedPeople.append(p)
     return None
 
 def roomList(person,assignment,csp):
@@ -117,13 +124,18 @@ def assign(person,room,assignment,csp):
     personToAppend = csp.office.officeRooms[room]
     personToAppend.contains.append(person)
     personToAppend.currentAmount += 1
-    assignment[person] = room
+    assignment[person] = room 
 
 csp = Constraints()
 assignments = BackTrackingSearch(csp)
+
 if assignments != None:
     for a in assignments.keys():
         print("Person:",a.name,"with status:",a.status,a.smoker,a.manyVisitors,"assigned to room:",assignments[a])
 else:
     print("Couldn't assign everybody")
+    print("People that couldn't be assigned a room:")
+    for person in csp.office.unAssignedPeople:
+        print(person.name,person.status,person.smoker,person.manyVisitors)
+
   
