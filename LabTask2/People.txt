@@ -1,11 +1,11 @@
-A;non-smoker;many visitors;head
-B;non-smoker;many visitors;professor
 C;non-smoker;few visitors;professor
-D;smoker;many visitors;professor
 E;smoker;many visitors;researcher
 F;non-smoker;few visitors;researcher
+B;non-smoker;many visitors;professor
 G;non-smoker;few visitors;researcher
 H;non-smoker;many visitors;PhD Student
+D;smoker;many visitors;professor
 I;smoker;few visitors;PhD Student
+A;non-smoker;many visitors;head
 J;smoker;few visitors;PhD Student
 K;non-smoker;few visitors;PhD Student
