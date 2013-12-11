@@ -4,15 +4,18 @@ class Person:
     status = ""
     smoker = ""
     manyVisitors = ""
-    constraintsVal = 0
     potentialRoomKey = list()
-    potentialRooms = list()
+
+    def __init__(self,name,status,smoker,manyVisitors):
+        self.name = name
+        self.status = status
+        self.smoker = smoker
+        self.manyVisitors = manyVisitors
 
 class Rooms:
     amount = 0
     currentAmount = 0
     contains = []
-    constraintsVal = 1000
     roomKey = ""
 
     def __init__(self,amount,roomKey):
@@ -25,12 +28,6 @@ class Office:
     unAssignedPeople = list()
     originalPeopleList = list()
     officeRooms = dict()
-    LCV = False
-    countSmoker = 0
-    countNonSmoker = 0
-    countVisitors = 0
-    countNoVisitors = 0
-    
     def __init__(self):
         self.officeRooms['T13'] = Rooms(1,'T13')
         self.officeRooms['T14'] = Rooms(1,'T14')
@@ -42,29 +39,30 @@ class Office:
         self.setPeople()
 
     def setPeople(self):
-        dataFile = open("People.txt")
-        for dataLine in dataFile.readlines():
-            dataLine = dataLine[:len(dataLine) - 1]
-            dummyPerson = Person()
-            dummyPerson.name,dummyPerson.smoker,dummyPerson.manyVisitors,dummyPerson.status = dataLine.split(';')
-            self.persons.append(dummyPerson)
-            self.originalPeopleList.append(dummyPerson)
-            self.unAssignedPeople.append(dummyPerson)
-            if dummyPerson.smoker == "smoker":
-                self.countSmoker += 1
-            elif dummyPerson.smoker == "non-smoker":
-                self.countNonSmoker += 1
-            if dummyPerson.manyVisitors == "many visitors":
-                self.countVisitors += 1
-            elif dummyPerson.manyVisitors == "few visitors":
-                self.countNoVisitors += 1
-        dataFile.close()
-        del dataFile
-        del dataLine
+        self.persons.append(Person("E","researcher","smoker","many visitors"))
+        self.persons.append(Person("F","researcher","non-smoker","few visitors"))
+        self.persons.append(Person("G","researcher","non-smoker","few visitors"))
+        self.persons.append(Person("H","PhD Student","non-smoker","many visitors"))
+        self.persons.append(Person("I","PhD Student","smoker","few visitors"))
+        self.persons.append(Person("J","PhD Student","smoker","few visitors"))
+        self.persons.append(Person("K","PhD Student","non-smoker","few visitors"))
+        self.persons.append(Person("B","professor","non-smoker","many visitors"))
+        self.persons.append(Person("D","professor","smoker","many visitors"))
+        self.persons.append(Person("A","head","non-smoker","many visitors"))
+        self.persons.append(Person("C","professor","non-smoker","few visitors"))
+        self.originalPeopleList = list(self.persons)
+        self.unAssignedPeople = list(self.persons)
+
+    def refresh(self):
+        self.persons = list(self.originalPeopleList)
+        self.unAssignedPeople = list(self.originalPeopleList)
     
 class Constraints:
 
     office = Office()
+
+    def refresh(self):
+        self.office.refresh()
 
     def checkConstraints(self,one,room):
         if not self.FullRoom(room):
@@ -122,10 +120,7 @@ def ReckursiveBacktracking(assignment,csp):
         result = ReckursiveBacktracking(assignment,csp)
         if result != None:
             return result
-        personToDelete = assignment[person]
-        csp.office.officeRooms[personToDelete].contains.remove(person)
-        csp.office.officeRooms[personToDelete].currentAmount -= 1
-        del assignment[person]
+        unAssign(person,room,assignment,csp)
     csp.office.persons.insert(0,person)
     if len(csp.office.persons) < len(csp.office.unAssignedPeople):
         csp.office.unAssignedPeople = list()
@@ -146,99 +141,74 @@ def assign(person,room,assignment,csp):
     personToAppend.currentAmount += 1
     assignment[person] = room 
 
-def LeastConstrainingVal(person,csp,assignment):
-    den den assignment som begränsar minst för andra.
-    loopa igenom alla kvarvarande personers rum. räkna potentialla rum kvar efter assignment. Den ass som får mest potentialla rum kvar blir rum för assignment
-    for i in person.potentialRoomKey:
-        for r in csp.office.officeRooms.keys():
-            if i == r:
-                person.potentialRooms.append(csp.office.officeRooms[r])
-                break
-        del r
-    for room in person.potentialRooms:
-        if person.status == "head" or person.status == "professor":
-            preCount = len(csp.office.persons) * len(csp.office.officeRooms)
-        elif person.status != "head" and person.status != "professor":
-            if person.smoker == "smoker" and person.manyVisitors == "many visitors":
-                if room.currentAmount + 1 == room.amount:
-                    preCount = (csp.office.countSmoker + csp.office.countVisitors) * (len(csp.office.officeRooms) - 1)
-                else:
-                    preCount = (csp.office.countSmoker + csp.office.countVisitors) * (len(csp.office.officeRooms))
-            elif person.smoker == "non-smoker" and person.manyVisitors == "few visitors":
-                if room.currentAmount + 1 == room.amount:
-                    preCount = (csp.office.countNonSmoker + csp.office.countNoVisitors) * (len(csp.office.officeRooms) - 1)
-                else:
-                    preCount = (csp.office.countNonSmoker + csp.office.countNoVisitors (room.amount - room.currentAmount)) * (len(csp.office.officeRooms))
-            elif person.smoker == "smoker" and person.manyVisitors == "few visitors":
-                if room.currentAmount + 1 == room.amount:
-                    preCount = (csp.office.countSmoker + csp.office.countNoVisitors) * (len(csp.office.officeRooms) - 1)
-                else:
-                    preCount = (csp.office.countSmoker + csp.office.countNoVisitors + (room.amount - room.currentAmount)) * (len(csp.office.officeRooms))
-            elif person.smoker == "non-smoker" and person.manyVisitors == "many visitors":
-                if room.currentAmount + 1 == room.amount:
-                    preCount = (csp.office.countNonSmoker + csp.office.countVisitors) * (len(csp.office.officeRooms) - 1)
-                else:
-                    preCount = (csp.office.countNonSmoker + csp.office.countVisitors + (room.amount - room.currentAmount)) * (len(csp.office.officeRooms))
-        if preCount < room.constraintsVal:
-            room.constraintsVal = preCount
-    
+def unAssign(person,room,assignment,csp):
+    roomToDeletePersonFrom = assignment[person]
+    csp.office.officeRooms[roomToDeletePersonFrom].contains.remove(person)
+    csp.office.officeRooms[roomToDeletePersonFrom].currentAmount -= 1
+    del assignment[person]
 
-    person.potentialRooms.sort(key = lambda Rooms : Rooms.constraintsVal)
-    person.potentialRooms.reverse()
-    return person.potentialRooms
+def LeastConstrainingVal(person,csp,assignment):
+    #den den assignment som begränsar minst för andra.
+    #loopa igenom alla kvarvarande personers rum. räkna potentialla rum kvar efter assignment. Den ass som får mest potentialla rum kvar blir rum för assignment
+    testAssignment = dict(assignment)
+    testCsp = csp
+    bestRoom = 0
+    if person.potentialRoomKey == []:
+        return None
+    for roomKey in person.potentialRoomKey:
+        possibleRoomCount = 0
+        assign(person,roomKey,testAssignment,testCsp)
+        for affectedPerson in testCsp.office.persons:
+            tempRoomKeys = roomList(affectedPerson,testAssignment,testCsp)
+            possibleRoomCount += len(tempRoomKeys)
+        if possibleRoomCount > bestRoom:
+            bestRoom = possibleRoomCount
+            roomToReturn = roomKey
+        unAssign(person,roomKey,testAssignment,testCsp)
+        if testCsp.office.persons == []:
+            return roomKey
+    if bestRoom == 0:
+        return None
+    person.potentialRoomKey.remove(roomToReturn)
+    return roomToReturn
 
 def MostConstrainedVariable(csp):
-    csp.office.persons = list(csp.office.originalPeopleList)
-    den person som har minst rum kvar att vara i.
+    count = 1000
+    findPotential(csp)
     for person in csp.office.persons:
-        if person.status == "head" or person.status == "professor":
-            person.constraintsVal += 10
-        if person.manyVisitors == "many visitors":
-            person.constraintsVal += 7
-        if person.smoker == "smoker":
-            person.constraintsVal += 3
-        else:
-            person.constraintsVal += 0
-    csp.office.persons.sort(key = lambda Person: Person.constraintsVal)
+        if len(person.potentialRoomKey) < count:
+            count = len(person.potentialRoomKey)
+            personToReturn = person
+    csp.office.persons.remove(personToReturn)
+    return personToReturn
 
-    csp.office.unAssignedPeople.clear()
-    csp.office.unAssignedPeople = list(csp.office.persons)
-    preAssign(csp)
-    return ReckursiveBacktrackingWithH({},csp)
 
-def preAssign(csp):
+def findPotential(csp):
     for p in csp.office.persons:
         p.potentialRoomKey = list(roomList(p,{},csp))
 
+def BacktrackingWithH(csp):
+    assignment = dict()
+    return ReckursiveBacktrackingWithH(assignment,csp)
 
 def ReckursiveBacktrackingWithH(assignment,csp):
     if csp.office.persons == []:
         return assignment
-    person = csp.office.persons.pop()
-    for room in LeastConstrainingVal(person,csp):
-        assignWithH(person,room,assignment)
+    person = MostConstrainedVariable(csp)
+    room = LeastConstrainingVal(person,csp,assignment)
+    while room != None:
+        assign(person,room,assignment,csp)
         global count
         count = count + 1
-        result = ReckursiveBacktracking(assignment,csp)
+        result = ReckursiveBacktrackingWithH(assignment,csp)
         if result != None:
             return result
-        roomToDeletePersonFrom = assignment[person]
-        csp.office.officeRooms[roomToDeletePersonFrom.roomKey].contains.remove(person)
-        csp.office.officeRooms[roomToDeletePersonFrom.roomKey].currentAmount -= 1
-        del assignment[person]
+        unAssign(person,room,assignment,csp)
+        room = LeastConstrainingVal(person,csp,assignment)
     csp.office.persons.insert(0,person)
-    if len(csp.office.persons) < len(csp.office.unAssignedPeople):
-        csp.office.unAssignedPeople = list()
-        for p in csp.office.persons:
-            csp.office.unAssignedPeople.append(p)
     return None
-
-def assignWithH(person,room,assignment):
-    room.contains.append(person)
-    room.currentAmount += 1
-    assignment[person] = room 
-count = 0 
 csp = Constraints()
+count = 0 
 assignments = BackTrackingSearch(csp)
 
 if assignments != None:
@@ -260,16 +230,15 @@ for room in csp.office.officeRooms.values():
     room.contains.clear()
     room.currentAmount = 0
 
-assignments = MostConstrainedVariable(csp)
+csp.refresh()
+assignments = BacktrackingWithH(csp)
 
 if assignments != None:
     for a in assignments.keys():
         print("Person:",a.name,"with status:",a.status,a.smoker,a.manyVisitors,"assigned to room:",assignments[a])
-    del a
     assignments.clear()
 else:
-    for person in csp.office.unAssignedPeople:
-        print(person.name,person.status,person.smoker,person.manyVisitors)
+    print("Couldn't assign everybody")
 print("It took",count,"recursions in order for the assignment to finish")
 
   
