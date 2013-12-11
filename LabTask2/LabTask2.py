@@ -155,6 +155,8 @@ def LeastConstrainingVal(person,csp,assignment):
     bestRoom = 0
     if person.potentialRoomKey == []:
         return None
+    elif csp.office.persons == []:
+        return person.potentialRoomKey.pop()
     for roomKey in person.potentialRoomKey:
         possibleRoomCount = 0
         assign(person,roomKey,testAssignment,testCsp)
@@ -164,9 +166,7 @@ def LeastConstrainingVal(person,csp,assignment):
         if possibleRoomCount > bestRoom:
             bestRoom = possibleRoomCount
             roomToReturn = roomKey
-        unAssign(person,roomKey,testAssignment,testCsp)
-        if testCsp.office.persons == []:
-            return roomKey
+        unAssign(person,roomKey,testAssignment,testCsp)   
     if bestRoom == 0:
         return None
     person.potentialRoomKey.remove(roomToReturn)
