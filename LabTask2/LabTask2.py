@@ -148,8 +148,6 @@ def unAssign(person,room,assignment,csp):
     del assignment[person]
 
 def LeastConstrainingVal(person,csp,assignment):
-    #den den assignment som begränsar minst för andra.
-    #loopa igenom alla kvarvarande personers rum. räkna potentialla rum kvar efter assignment. Den ass som får mest potentialla rum kvar blir rum för assignment
     testAssignment = dict(assignment)
     testCsp = csp
     bestRoom = 0
@@ -207,6 +205,7 @@ def ReckursiveBacktrackingWithH(assignment,csp):
         room = LeastConstrainingVal(person,csp,assignment)
     csp.office.persons.insert(0,person)
     return None
+
 csp = Constraints()
 count = 0 
 assignments = BackTrackingSearch(csp)
