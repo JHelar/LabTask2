@@ -1,4 +1,6 @@
 import operator
+
+#Class Person, general class for a person with it's constraints in form of strings.
 class Person:
     name = ""
     status = ""
@@ -12,6 +14,7 @@ class Person:
         self.smoker = smoker
         self.manyVisitors = manyVisitors
 
+#Class Room, class for a room with a size of how many can be in that room.
 class Rooms:
     amount = 0
     currentAmount = 0
@@ -23,6 +26,7 @@ class Rooms:
         self.amount = amount
         self.roomKey = roomKey
 
+#Class Office, hold the list of people and officerooms, reads in people and rooms.
 class Office:
     persons = list()
     unAssignedPeople = list()
@@ -36,6 +40,8 @@ class Office:
         self.officeRooms['T11'] = Rooms(2,'T11')
         self.officeRooms['T12'] = Rooms(2,'T12')
         self.officeRooms['T10'] = Rooms(3,'T10')
+        self.officeRooms['T17'] = Rooms(3,'T17')
+        self.officeRooms['T18'] = Rooms(3,'T18')
         self.setPeople()
 
     def setPeople(self):
@@ -56,7 +62,8 @@ class Office:
     def refresh(self):
         self.persons = list(self.originalPeopleList)
         self.unAssignedPeople = list(self.originalPeopleList)
-    
+
+#Class Constraints, has the office object in it and all the constraint functions that must be followed. 
 class Constraints:
 
     office = Office()
@@ -105,10 +112,12 @@ class Constraints:
                     return False
         else:
             return True
+#The first backtracking search that will call the recursive function that is not using any heuristics, returns either an assignment list or a "None" value
 def BackTrackingSearch(csp):
     assignment = dict()
     return ReckursiveBacktracking(assignment,csp)
 
+#Recursive backtracking search, tries to assign all the people in to the rooms following all the constraints from the constraints class
 def ReckursiveBacktracking(assignment,csp):
     if csp.office.persons == []:
         return assignment
@@ -128,6 +137,7 @@ def ReckursiveBacktracking(assignment,csp):
             csp.office.unAssignedPeople.append(p)
     return None
 
+#Function that returns a list of rooms a given person can be in following the constraints given by the constraints class
 def roomList(person,assignment,csp):
     returnKeys = list()
     for room in csp.office.officeRooms.keys():
@@ -135,18 +145,21 @@ def roomList(person,assignment,csp):
             returnKeys.append(room)
     return returnKeys
 
+#Function assigns a person to the assignment list.
 def assign(person,room,assignment,csp):
     personToAppend = csp.office.officeRooms[room]
     personToAppend.contains.append(person)
     personToAppend.currentAmount += 1
     assignment[person] = room 
 
+#Function un assignes a person from the assignment list
 def unAssign(person,room,assignment,csp):
     roomToDeletePersonFrom = assignment[person]
     csp.office.officeRooms[roomToDeletePersonFrom].contains.remove(person)
     csp.office.officeRooms[roomToDeletePersonFrom].currentAmount -= 1
     del assignment[person]
 
+#Function that returns the leas constrainging value in form of a room that will be the least constraining for the other un assigned people
 def LeastConstrainingVal(person,csp,assignment):
     testAssignment = dict(assignment)
     testCsp = csp
@@ -170,6 +183,7 @@ def LeastConstrainingVal(person,csp,assignment):
     person.potentialRoomKey.remove(roomToReturn)
     return roomToReturn
 
+#Function returns the person that is the most constrained of all current people in the people list
 def MostConstrainedVariable(csp):
     count = 1000
     findPotential(csp)
@@ -180,15 +194,17 @@ def MostConstrainedVariable(csp):
     csp.office.persons.remove(personToReturn)
     return personToReturn
 
-
+#Function sets what rooms people in the people list can be in, following the constraints
 def findPotential(csp):
     for p in csp.office.persons:
         p.potentialRoomKey = list(roomList(p,{},csp))
 
+#Backtracking search with heuristic, calls the recursive function that uses the heuristics, returns an assignment or a "None" value.
 def BacktrackingWithH(csp):
     assignment = dict()
     return ReckursiveBacktrackingWithH(assignment,csp)
 
+#Recursive backtracking that uses heuristics.
 def ReckursiveBacktrackingWithH(assignment,csp):
     if csp.office.persons == []:
         return assignment
@@ -205,14 +221,14 @@ def ReckursiveBacktrackingWithH(assignment,csp):
         room = LeastConstrainingVal(person,csp,assignment)
     csp.office.persons.insert(0,person)
     return None
-
+#Main program
 csp = Constraints()
 count = 0 
 assignments = BackTrackingSearch(csp)
 
 if assignments != None:
     for a in assignments.keys():
-        print("Person:",a.name,"with status:",a.status,a.smoker,a.manyVisitors,"assigned to room:",assignments[a])
+        print("Person:",a.name,"constraints:",a.status,a.smoker,a.manyVisitors,"room:",assignments[a])
     del a
     assignments.clear()
 else:
@@ -222,7 +238,7 @@ else:
         print(person.name,person.status,person.smoker,person.manyVisitors)
 print("It took",count,"recursions in order for the assignment to finish")
 
-dummy = input("Press enter to do the other search!")
+dummy = input("Press enter to do the assignment with heuristic search!\n")
 count = 0
 
 for room in csp.office.officeRooms.values():
@@ -231,13 +247,13 @@ for room in csp.office.officeRooms.values():
 
 csp.refresh()
 assignments = BacktrackingWithH(csp)
-
+print('Heuristic backtracking:')
 if assignments != None:
     for a in assignments.keys():
-        print("Person:",a.name,"with status:",a.status,a.smoker,a.manyVisitors,"assigned to room:",assignments[a])
+        print("Person:",a.name,"constraints:",a.status,a.smoker,a.manyVisitors,"room:",assignments[a])
     assignments.clear()
 else:
-    print("Couldn't assign everybody")
+    print("Couldn't assign everybody!")
 print("It took",count,"recursions in order for the assignment to finish")
 
   
